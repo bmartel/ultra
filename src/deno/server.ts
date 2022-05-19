@@ -33,9 +33,7 @@ const deploy = async () => {
           "public, max-age=604800, stale-while-revalidate=86400, stale-if-error=259200",
       };
 
-      const file = await Deno.open(
-        `./${url.pathname}`,
-      );
+      const file = await Deno.open(`./${url.pathname}`);
       const body = readableStreamFromReader(file);
 
       return new Response(body, { headers });
@@ -62,6 +60,7 @@ const deploy = async () => {
 
     return new Response(
       await render({
+        request,
         url,
         importMap: denoMap,
         lang,
@@ -72,7 +71,7 @@ const deploy = async () => {
           "content-type": "text/html; charset=utf-8",
           // link,
         },
-      },
+      }
     );
   };
   console.log("Ultra running");

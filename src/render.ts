@@ -20,14 +20,13 @@ const requiredDependencies = [
   "app",
 ] as const;
 
-const render = async (
-  {
-    url,
-    importMap,
-    lang = "en",
-    disableStreaming = false,
-  }: RenderOptions,
-) => {
+const render = async ({
+  request,
+  url,
+  importMap,
+  lang = "en",
+  disableStreaming = false,
+}: RenderOptions) => {
   const chunkSize = defaultChunkSize;
 
   const renderMap: ImportMap = { imports: {} };
@@ -54,7 +53,10 @@ const render = async (
   const transpiledAppImportUrl = new URL(
     replaceFileExt(
       `${resolvedAppImportUrl.origin}/${
-        resolvedAppImportUrl.pathname.replace(`/${sourceDirectory}/`, "")
+        resolvedAppImportUrl.pathname.replace(
+          `/${sourceDirectory}/`,
+          "",
+        )
       }`,
       ".js",
     ),
@@ -69,6 +71,20 @@ const render = async (
   let body;
 
   try {
+    let data;
+    // @ts-ignore fix App onServer type
+    if (typeof App.onServer === "function") {
+      // @ts-ignore fix App onServer type
+      const res = await App.onServer(request);
+      if (res && res?.request) {
+        // Allow middleware-esque decoration if a request is returned from this function
+        request = res.request;
+      }
+      if (res && res?.data) {
+        // Allow middleware-esque decoration if data is returned from this function
+        data = res.data;
+      }
+    }
     // @ts-ignore fix react stream types
     body = await ReactDOM.renderToReadableStream(
       React.createElement(
@@ -77,11 +93,7 @@ const render = async (
         React.createElement(
           HelmetProvider,
           { context: helmetContext },
-          React.createElement(
-            App,
-            { cache },
-            null,
-          ),
+          React.createElement(App, { cache, data, request }, null),
         ),
       ),
       // @ts-ignore fix react stream types
@@ -111,13 +123,21 @@ const render = async (
       }<script type="module" defer>${
         isDev ? socket(url) : ""
       }import { createElement } from "${
-        dependencyMap.get("react")
+        dependencyMap.get(
+          "react",
+        )
       }";import { hydrateRoot } from "${
-        dependencyMap.get("react-dom")
+        dependencyMap.get(
+          "react-dom",
+        )
       }";import { Router } from "${
-        dependencyMap.get("wouter")
+        dependencyMap.get(
+          "wouter",
+        )
       }";import { HelmetProvider } from "${
-        dependencyMap.get("react-helmet")
+        dependencyMap.get(
+          "react-helmet",
+        )
       }";import App from "${transpiledAppImportUrl}";` +
       `const root = hydrateRoot(document.getElementById("ultra"),` +
       `createElement(Router, null, createElement(HelmetProvider, null, createElement(App))))` +
@@ -128,7 +148,9 @@ const render = async (
   // tail builder
   const renderTail = () => {
     return `</div></body><script>self.__ultra = ${
-      JSON.stringify(Array.from(cache.entries()))
+      JSON.stringify(
+        Array.from(cache.entries()),
+      )
     }</script></html>`;
   };
 
@@ -151,9 +173,8 @@ const render = async (
             },
           }),
         ),
-      )
-        .text();
-      return (renderHead() + html + renderTail());
+      ).text();
+      return renderHead() + html + renderTail();
     };
 
     return await renderToString();
