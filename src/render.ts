@@ -220,7 +220,7 @@ const staticLocationHook = (
 
 const socket = (url: URL) => {
   return `
-  const _ultra_socket = new WebSocket("ws://${url.hostname}:${devServerWebsocketPort}/_ultra_socket");
+  const _ultra_socket = new WebSocket("ws://${url.hostname}:${devServerWebsocketPort}");
     _ultra_socket.addEventListener("message", (e) => {
       if (e.data === "reload") {
         location.reload();
