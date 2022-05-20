@@ -71,7 +71,6 @@ const render = async ({
   let body;
 
   try {
-    let data;
     // @ts-ignore fix App onServer type
     if (typeof App.onServer === "function") {
       // @ts-ignore fix App onServer type
@@ -82,7 +81,7 @@ const render = async ({
       }
       if (res && res?.data) {
         // Allow middleware-esque decoration if data is returned from this function
-        data = res.data;
+        cache.set("__data", res.data);
       }
     }
     // @ts-ignore fix react stream types
@@ -93,7 +92,7 @@ const render = async ({
         React.createElement(
           HelmetProvider,
           { context: helmetContext },
-          React.createElement(App, { cache, data, request }, null),
+          React.createElement(App, { cache, request }, null),
         ),
       ),
       // @ts-ignore fix react stream types
