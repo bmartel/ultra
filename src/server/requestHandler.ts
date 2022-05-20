@@ -25,7 +25,7 @@ type CreateRequestHandlerOptions = {
 const TranspileObj: Record<string, string> = {};
 
 export async function createRequestHandler(
-  options: CreateRequestHandlerOptions,
+  options: CreateRequestHandlerOptions
 ) {
   const {
     cwd,
@@ -74,9 +74,7 @@ export async function createRequestHandler(
         }
       }
 
-      const file = await Deno.open(
-        `./.ultra${requestUrl.pathname}`,
-      );
+      const file = await Deno.open(`./.ultra${requestUrl.pathname}`);
       const body = readableStreamFromReader(file);
 
       return new Response(body, { headers });
@@ -109,7 +107,7 @@ export async function createRequestHandler(
       }
 
       const file = await Deno.open(
-        join(".", sourceDirectory, requestUrl.pathname),
+        join(".", sourceDirectory, requestUrl.pathname)
       );
       const body = readableStreamFromReader(file);
 
@@ -194,31 +192,35 @@ export async function createRequestHandler(
     }
 
     // jsx
-    const jsx = `${sourceDirectory}${
-      replaceFileExt(requestUrl.pathname, ".jsx")
-    }`;
+    const jsx = `${sourceDirectory}${replaceFileExt(
+      requestUrl.pathname,
+      ".jsx"
+    )}`;
     if (transpile.has(jsx)) {
       return await transpilation(jsx);
     }
 
     // tsx
-    const tsx = `${sourceDirectory}${
-      replaceFileExt(requestUrl.pathname, ".tsx")
-    }`;
+    const tsx = `${sourceDirectory}${replaceFileExt(
+      requestUrl.pathname,
+      ".tsx"
+    )}`;
     if (transpile.has(tsx)) {
       return await transpilation(tsx);
     }
 
     // ts
-    const ts = `${sourceDirectory}${
-      replaceFileExt(requestUrl.pathname, ".ts")
-    }`;
+    const ts = `${sourceDirectory}${replaceFileExt(
+      requestUrl.pathname,
+      ".ts"
+    )}`;
     if (transpile.has(ts)) {
       return await transpilation(ts);
     }
 
     return new Response(
       await render({
+        request,
         url: requestUrl,
         importMap,
         lang,
@@ -228,7 +230,7 @@ export async function createRequestHandler(
         headers: {
           "content-type": "text/html; charset=utf-8",
         },
-      },
+      }
     );
   };
 }
