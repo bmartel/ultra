@@ -44,9 +44,12 @@ export class UltraVisitor extends Visitor {
       value,
     );
 
+
     node.value = resolvedImport.matched
       ? resolvedImport.resolvedImport.href
       : value;
+
+    console.log({ value, resolvedImportHref: resolvedImport?.resolvedImport?.href })
 
     if (this.relativePrefix) {
       node.value = node.value.replace(
