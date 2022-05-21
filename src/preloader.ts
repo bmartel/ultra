@@ -13,6 +13,7 @@ export const preloader = async (url, map) => {
 
   for (const { specifier } of modules) {
     let url = map(specifier);
+    console.log('preloader:', { specifier, url })
     if (url) {
       // esm.sh fix for deno
       url = url.replace("/deno/", "/es2021/");
