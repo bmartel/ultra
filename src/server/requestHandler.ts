@@ -58,14 +58,12 @@ export async function createRequestHandler(
       if (enableLinkPreloadHeaders) {
         const ultraUri = toFileUrl(resolve(cwd, ".ultra")).toString();
 
-        console.log({ preloader: { ultraUri, pathname: requestUrl.pathname } })
         const link = await preloader(
           ultraUri + requestUrl.pathname,
           (specifier: string) => {
             const path = specifier.replace(ultraUri, "");
 
             if (path !== requestUrl.pathname) {
-              console.log({ specifier: { origin: requestUrl.origin, path } })
               return requestUrl.origin + path;
             }
           },
@@ -92,12 +90,15 @@ export async function createRequestHandler(
       if (
         enableLinkPreloadHeaders && contentType === "application/javascript"
       ) {
+
+        console.log({ preloader: { fileSrcRootUri, pathname: requestUrl.pathname } })
         const link = await preloader(
           fileSrcRootUri + requestUrl.pathname,
           (specifier: string) => {
             const path = specifier.replace(fileSrcRootUri, "");
 
             if (path !== requestUrl.pathname) {
+              console.log({ specifier: { origin: requestUrl.origin, path } })
               return requestUrl.origin + path;
             }
           },
