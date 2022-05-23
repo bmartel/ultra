@@ -58,12 +58,14 @@ export async function createRequestHandler(
       if (enableLinkPreloadHeaders) {
         const ultraUri = toFileUrl(resolve(cwd, ".ultra")).toString();
 
+        console.log({ preloader: { ultraUri, pathname: requestUrl.pathname } })
         const link = await preloader(
           ultraUri + requestUrl.pathname,
           (specifier: string) => {
             const path = specifier.replace(ultraUri, "");
 
             if (path !== requestUrl.pathname) {
+              console.log({ specifier: { origin: requestUrl.origin, path } })
               return requestUrl.origin + path;
             }
           },
