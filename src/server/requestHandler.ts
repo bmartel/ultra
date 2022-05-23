@@ -143,13 +143,11 @@ export async function createRequestHandler(
       if (enableLinkPreloadHeaders) {
 
         const preloaderUrl = resolveFileUrl(cwd, file).toString()
-        console.log({ preloader: { preloaderUrl } })
         const link = await preloader(
           preloaderUrl,
           (specifier: string) => {
             const path = specifier.replace(fileSrcRootUri, "");
             if (replaceFileExt(path, ".js") !== requestUrl.pathname) {
-              console.log({ specifier: { origin: requestUrl.origin, path } })
               return requestUrl.origin + path;
             }
           },
