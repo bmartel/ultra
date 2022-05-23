@@ -91,14 +91,12 @@ export async function createRequestHandler(
         enableLinkPreloadHeaders && contentType === "application/javascript"
       ) {
 
-        console.log({ preloader: { fileSrcRootUri, pathname: requestUrl.pathname } })
         const link = await preloader(
           fileSrcRootUri + requestUrl.pathname,
           (specifier: string) => {
             const path = specifier.replace(fileSrcRootUri, "");
 
             if (path !== requestUrl.pathname) {
-              console.log({ specifier: { origin: requestUrl.origin, path } })
               return requestUrl.origin + path;
             }
           },
@@ -143,11 +141,15 @@ export async function createRequestHandler(
       }
 
       if (enableLinkPreloadHeaders) {
+
+        const preloaderUrl = resolveFileUrl(cwd, file).toString()
+        console.log({ preloader: { preloaderUrl } })
         const link = await preloader(
-          resolveFileUrl(cwd, file).toString(),
+          preloaderUrl,
           (specifier: string) => {
             const path = specifier.replace(fileSrcRootUri, "");
             if (replaceFileExt(path, ".js") !== requestUrl.pathname) {
+              console.log({ specifier: { origin: requestUrl.origin, path } })
               return requestUrl.origin + path;
             }
           },
