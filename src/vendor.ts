@@ -59,7 +59,7 @@ const vendor = async ({
         if (!isValidUrl(path)) continue;
         const url = new URL(path);
         const hash = hashFile(url.pathname);
-        console.log(`Vendoring:`, { path, pathname: url.pathname, hash });
+        console.log(`Vendoring:`, { key, path, pathname: url.pathname, hash });
         const file = await fetch(path);
         const text = await file.text();
         await Deno.writeTextFile(
