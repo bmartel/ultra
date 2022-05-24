@@ -39,6 +39,7 @@ const vendor = async ({
     const p = new URL(importMap?.imports[key]);
     // these params force the 'browser' imports
     // these will work in BOTH deno and browser
+
     if (p.hostname.toLowerCase() == "esm.sh") {
       p.searchParams.delete("dev");
       p.searchParams.append("target", "es2021");
@@ -50,7 +51,8 @@ const vendor = async ({
       kind: "codeOnly",
     });
 
-    const { modules } = graph.toJSON();
+    const { modules, roots } = graph.toJSON();
+    const root = new URL(roots[0]);
 
     // loop through specifiers
     for (const { specifier } of modules) {
@@ -59,7 +61,7 @@ const vendor = async ({
         if (!isValidUrl(path)) continue;
         const url = new URL(path);
         const hash = hashFile(url.pathname);
-        console.log(`Vendoring:`, { key, path, pathname: url.pathname, hash });
+        console.log(`Vendoring: ${path}`);
         const file = await fetch(path);
         const text = await file.text();
         await Deno.writeTextFile(
@@ -69,12 +71,15 @@ const vendor = async ({
             root: ".",
           })
         );
-        vendorMap[key] = `${directory}/${hash}.js`;
+        // only update the vendorMap pointer if the module is a direct descendant of the root
+        if (url.pathname === root.pathname) {
+          vendorMap[key] = `${directory}/${hash}.js`;
+        }
       }
     }
   }
 
-  console.log(vendorMap);
+  console.log("vendorMap: ", vendorMap);
   return { imports: vendorMap };
 };
 
