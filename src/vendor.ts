@@ -69,11 +69,12 @@ const vendor = async ({
             root: ".",
           })
         );
-        vendorMap[key] = `./${dir}/${vendorDirectory}/${hash}.js`;
+        vendorMap[key] = `${directory}/${hash}.js`;
       }
     }
   }
 
+  console.log(vendorMap);
   return { imports: vendorMap };
 };
 
