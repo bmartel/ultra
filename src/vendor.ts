@@ -73,7 +73,7 @@ const vendor = async ({
         );
         // only update the vendorMap pointer if the module is a direct descendant of the root
         if (url.pathname === root.pathname) {
-          vendorMap[key] = `${directory}/${hash}.js`;
+          vendorMap[key] = `./${dir}/${vendorDirectory}/${hash}.js`;
         }
       }
     }
