@@ -10,13 +10,17 @@ const cwd = Deno.cwd();
 const config = await resolveConfig(cwd);
 const importMap = await resolveImportMap(cwd, config);
 
-const vendor = async (
-  { dir = ".ultra", outputDir }: { dir: string; outputDir?: string },
-) => {
+const vendor = async ({
+  dir = ".ultra",
+  outputDir,
+}: {
+  dir: string;
+  outputDir?: string;
+}) => {
   // setup directories
   await emptyDir(`./${dir}`);
   await ensureDir(
-    `./${dir}/${outputDir ? outputDir + "/" : ""}${vendorDirectory}`,
+    `./${dir}/${outputDir ? outputDir + "/" : ""}${vendorDirectory}`
   );
   const directory = `${dir}/${
     outputDir ? outputDir + "/" : ""
@@ -54,16 +58,16 @@ const vendor = async (
       if (path) {
         if (!isValidUrl(path)) continue;
         const url = new URL(path);
-        console.log(`Vendoring ${path}`);
+        const hash = hashFile(url.pathname);
+        console.log(`Vendoring:`, { path, pathname: url.pathname, hash });
         const file = await fetch(path);
         const text = await file.text();
-        const hash = hashFile(url.pathname);
         await Deno.writeTextFile(
           `${directory}/${hash}.js`,
           await vendorTransform({
             source: text,
             root: ".",
-          }),
+          })
         );
         vendorMap[key] = `./${dir}/${vendorDirectory}/${hash}.js`;
       }
