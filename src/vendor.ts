@@ -20,7 +20,7 @@ const vendor = async ({
   // setup directories
   await emptyDir(`./${dir}`);
   await ensureDir(
-    `./${dir}/${outputDir ? outputDir + "/" : ""}${vendorDirectory}`
+    `./${dir}/${outputDir ? outputDir + "/" : ""}${vendorDirectory}`,
   );
   const directory = `${dir}/${
     outputDir ? outputDir + "/" : ""
@@ -61,15 +61,17 @@ const vendor = async ({
         if (!isValidUrl(path)) continue;
         const url = new URL(path);
         const hash = hashFile(url.pathname);
-        console.log(`Vendoring: ${path}`);
         const file = await fetch(path);
         const text = await file.text();
+        const filePath = `${directory}/${hash}.js`;
+        console.log(`Vendoring: ${path} -> ${filePath}`);
+
         await Deno.writeTextFile(
-          `${directory}/${hash}.js`,
+          filePath,
           await vendorTransform({
             source: text,
             root: ".",
-          })
+          }),
         );
         // only update the vendorMap pointer if the module is a direct descendant of the root
         if (url.pathname === root.pathname) {
